@@ -1,4 +1,5 @@
 gradio
-ultralytics
 opencv-python
-matplotlib
+torch
+ultralytics>=8.1.0
+Pillow
