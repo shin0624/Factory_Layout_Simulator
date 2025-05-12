@@ -4,8 +4,8 @@ from utils import extract_frames
 from plot_map import generate_layout
 from ultralytics import YOLO
 
-# GPU 자원 활용 모델 로딩
-model = YOLO('yolov8m.pt')  # Hugging Face GPU에서 충분히 작동
+# GPU에서 작동 가능한 중간 사이즈 모델
+model = YOLO('yolov8m.pt')
 
 def process_video(video):
     frames = extract_frames(video.name)
@@ -23,7 +23,7 @@ iface = gr.Interface(
     inputs=gr.Video(label="공장 작업 영상 업로드"),
     outputs=gr.Image(label="2D 공장 미니맵"),
     title="공장 구조 인식 시뮬레이터",
-    description="영상에서 구조물을 인식하여 2D 레이아웃을 생성합니다."
+    description="작업 현장 영상을 분석하여 구조물의 위치를 추론하고 2D 평면도를 생성합니다."
 )
 
 if __name__ == "__main__":
