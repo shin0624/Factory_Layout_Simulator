@@ -1,20 +1,16 @@
 import cv2
 
-def extract_frames(video_path, interval_sec=2):
+def extract_frames(video_path, max_frames=10, skip=10):
     cap = cv2.VideoCapture(video_path)
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    frame_interval = int(fps * interval_sec)
-    
     frames = []
-    idx = 0
-
-    while cap.isOpened():
+    count = 0
+    while cap.isOpened() and len(frames) < max_frames:
         ret, frame = cap.read()
         if not ret:
             break
-        if idx % frame_interval == 0:
-            frames.append(frame)
-        idx += 1
-
+        if count % skip == 0:
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frames.append(frame_rgb)
+        count += 1
     cap.release()
     return frames
