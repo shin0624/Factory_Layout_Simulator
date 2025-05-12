@@ -17,10 +17,10 @@ def process_videos(video_paths):
 
 demo = gr.Interface(
     fn=process_videos,
-    inputs=gr.File(file_types=["video"], label="작업장 영상 업로드", multiple=True),
+    inputs=gr.File(file_types=["video"], label="작업장 영상 업로드"),
     outputs=gr.Image(type="pil", label="공장 구조 미니맵 시뮬레이션"),
     title="Factory Layout Simulator",
-    description="복수의 공장 작업 영상에서 구조물을 감지하고 2D 미니맵 형태로 시각화합니다."
+    description="공장 작업 영상에서 구조물을 감지하고 2D 미니맵 형태로 시각화합니다."
 )
 
 demo.launch()
