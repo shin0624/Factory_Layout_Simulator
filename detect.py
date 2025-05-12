@@ -1,23 +1,18 @@
+import torch
 from ultralytics import YOLO
 import cv2
+from utils import extract_frames
 
-# 클래스 매핑 (YOLOv8 COCO 기준)
-TARGET_CLASSES = {
-    0: 'person',
-    2: 'forklift',       # car로 대체 (fine-tune 필요)
-    39: 'machine',       # screwdriver → 기계 대체
-    67: 'conveyor_belt'  # cell phone → 벨트 대체
-}
+# YOLO 모델 로드
+model = YOLO("models/yolov11.pt")  # yolov11 가중치 파일 위치
 
-def run_detection(image, model):
-    results = model(image)[0]
+def detect_objects_in_video(video_path):
     detections = []
-
-    for box in results.boxes:
-        cls_id = int(box.cls.item())
-        if cls_id in TARGET_CLASSES:
-            name = TARGET_CLASSES[cls_id]
-            x, y = box.xywh[0][:2].tolist()
-            detections.append((name, (x, y)))
-
+    frames = extract_frames(video_path, max_frames=10)  # 성능상 샘플 프레임만 사용
+    for frame in frames:
+        results = model(frame)[0]  # 프레임당 감지 수행
+        for box in results.boxes:
+            cls = model.names[int(box.cls)]
+            xyxy = box.xyxy.tolist()[0]
+            detections.append({"class": cls, "bbox": xyxy})
     return detections
