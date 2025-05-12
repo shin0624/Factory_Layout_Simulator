@@ -4,7 +4,7 @@ import cv2
 from utils import extract_frames
 
 # YOLO 모델 로드
-model = YOLO("models/yolov11.pt")  # yolov11 가중치 파일 위치
+model = YOLO("models/yolov8m.pt")  # yolov8 가중치 파일 위치
 
 def detect_objects_in_video(video_path):
     detections = []
