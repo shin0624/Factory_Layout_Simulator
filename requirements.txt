@@ -1,5 +1,7 @@
 gradio
-opencv-python
+ultralytics>=8.0.0
+opencv-python-headless
+trimesh
+numpy
 torch
-ultralytics>=8.1.0
-Pillow
+huggingface_hub

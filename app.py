@@ -1,26 +1,77 @@
 import gradio as gr
-from detect import detect_objects_in_video
-from map_builder import generate_factory_map
+import tempfile
+import os
+import numpy as np
+from detector.frame_sampler import extract_keyframes
+from detector.yolo_pipeline import YOLO3DReconstructor
+from exporters.webgl_exporter import export_to_webgl
+from utils.visualization import FactoryVisualizer
 
-def process_videos(video_paths):
-    print("[INFO] 입력된 비디오 수:", len(video_paths))
+def process_video(video):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # 1. 키프레임 추출
+        frames_dir = os.path.join(tmpdir, "frames")
+        frame_paths = extract_keyframes(video, frames_dir)
+        
+        # 2. 3D 포인트 클라우드 생성
+        reconstructor = YOLO3DReconstructor()
+        result = reconstructor.process_frames(frame_paths)
+        
+        if result is None:
+            raise gr.Error("No detectable objects found in the video!")
+            
+        pointcloud, detections = result
+        
+        # 3. 시각화 결과 생성
+        vis_dir = os.path.join(tmpdir, "visualizations")
+        os.makedirs(vis_dir, exist_ok=True)
+        
+        # 3D 포인트 클라우드 시각화
+        pc_points = np.array([point[:3] for point in pointcloud.vertices])
+        FactoryVisualizer.plot_3d_pointcloud(
+            pc_points, 
+            save_path=os.path.join(vis_dir, "3d_view.png")
+        )
+        
+        # 탑뷰 시각화
+        FactoryVisualizer.create_top_down_view(
+            pc_points,
+            save_path=os.path.join(vis_dir, "top_view.png")
+        )
+        
+        # 클래스 분포 시각화
+        FactoryVisualizer.plot_class_distribution(
+            detections,
+            save_path=os.path.join(vis_dir, "distribution.png")
+        )
 
-    all_detections = []
-    for path in video_paths:
-        print(f"[INFO] 비디오 처리 중: {path}")
-        detections = detect_objects_in_video(path)
-        all_detections.extend(detections)  # 모든 비디오의 구조물 감지 결과를 누적
+        # 4. 모델 및 결과 파일 저장
+        obj_path = os.path.join(tmpdir, "factory.obj")
+        pointcloud.export(obj_path)
+        html_path = export_to_webgl(obj_path, tmpdir)
 
-    # 공장 구조 미니맵 생성
-    minimap_image = generate_factory_map(all_detections)
-    return minimap_image
+        return (
+            obj_path,
+            html_path,
+            os.path.join(vis_dir, "3d_view.png"),
+            os.path.join(vis_dir, "top_view.png"),
+            os.path.join(vis_dir, "distribution.png")
+        )
 
-demo = gr.Interface(
-    fn=process_videos,
-     inputs=gr.File(file_types=["video"], file_count="multiple", label="작업장 영상 업로드"),
-    outputs=gr.Image(type="pil", label="공장 구조 미니맵 시뮬레이션"),
-    title="Factory Layout Simulator",
-    description="공장 작업 영상에서 구조물을 감지하고 2D 미니맵 형태로 시각화합니다."
+iface = gr.Interface(
+    fn=process_video,
+    inputs=gr.Video(label="공장 영상 업로드 (MP4/AVI)"),
+    outputs=[
+        gr.Model3D(label="3D 포인트 클라우드 모델"),
+        gr.File(label="WebGL 인터랙티브 뷰어"),
+        gr.Image(label="3D 공장 구조", type="filepath"),
+        gr.Image(label="탑뷰 구조맵", type="filepath"),
+        gr.Image(label="객체 분포 분석", type="filepath")
+    ],
+    title="🏭 AI 공장 구조 분석 시스템",
+    description="업로드된 공장 영상에서 3D 구조맵과 분석 리포트를 자동 생성합니다",
+    allow_flagging="never",
 )
 
-demo.launch()
+if __name__ == "__main__":
+    iface.launch(debug=True)

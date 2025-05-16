@@ -1,3 +1,4 @@
 sdk: gradio
 python_version: 3.13.3
 app_file: app.py
+hardware: "cpu-basic"  # 또는 hardware: "zerogpu" (둘 다 ZeroGPU 환경을 의미함)

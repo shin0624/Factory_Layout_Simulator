@@ -12,7 +12,7 @@ short_description: 비전 기반으로 환경을 분석하고 시각화하는 �
 ---
 
 # 🏭 YOLO 8 기반 공장 구조 인식 시뮬레이터 (Factory Layout Detector)
-1. 업로드된 공장 작업 영상을 분석하여, 영상 내 구조물(사람, 지게차, 컨베이어 벨트, 기계)의 위치를 감지하고 이를 기반으로 2D 공장 미니맵을 생성.
+1. 업로드된 공장 작업 영상을 분석하여, 영상 내 구조물(사람, 지게차, 컨베이어 벨트, 기계)의 위치를 감지하고 이를 기반으로 3D 공장 미니맵을 생성.
 2. https://huggingface.co/spaces/shin0624/Factory_Layout_Simulator
 
 ![Image](https://github.com/user-attachments/assets/1011085a-b214-4a4c-af2d-3d9f47ebf4f8)
@@ -32,7 +32,7 @@ short_description: 비전 기반으로 환경을 분석하고 시각화하는 �
 ## 🚀 기능
 - 사람, 지게차, 기계, 컨베이어 벨트 감지 (YOLOv8 기반)
 - 영상 프레임을 분석하여 객체의 평균 위치 추론
-- 2D 평면도 시각화 출력
+- 3D 평면도 시각화 출력
 
 ## 🧠 모델
 - `YOLOv8m.pt` 사용 (Ultralytics, COCO pretrained)
