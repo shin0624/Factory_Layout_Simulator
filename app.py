@@ -11,14 +11,18 @@ def process_video(video):
     with tempfile.TemporaryDirectory() as tmpdir:
         # 1. 키프레임 추출
         frames_dir = os.path.join(tmpdir, "frames")
+        os.makedirs(frames_dir, exist_ok=True)
         frame_paths = extract_keyframes(video, frames_dir)
+        
+        if not frame_paths:
+            raise gr.Error("비디오 파일을 처리할 수 없습니다!")
         
         # 2. 3D 포인트 클라우드 생성
         reconstructor = YOLO3DReconstructor()
         result = reconstructor.process_frames(frame_paths)
         
         if result is None:
-            raise gr.Error("No detectable objects found in the video!")
+            raise gr.Error("영상에서 감지 가능한 객체를 찾을 수 없습니다!")
             
         pointcloud, detections = result
         
@@ -71,6 +75,7 @@ iface = gr.Interface(
     title="🏭 AI 공장 구조 분석 시스템",
     description="업로드된 공장 영상에서 3D 구조맵과 분석 리포트를 자동 생성합니다",
     allow_flagging="never",
+    examples=[],  # 예시 추가 가능
 )
 
 if __name__ == "__main__":

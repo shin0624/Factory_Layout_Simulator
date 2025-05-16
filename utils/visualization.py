@@ -1,3 +1,4 @@
+# utils/visualization.py
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
@@ -48,12 +49,13 @@ class FactoryVisualizer:
     @staticmethod
     def plot_class_distribution(detections, save_path):
         """객체 분포 시각화"""
+        # 수정: 원본은 list of detections를 기대하지만, 실제 입력은 class: count 딕셔너리
         classes = list(detections.keys())
-        counts = [len(v) for v in detections.values()]
+        counts = list(detections.values())
         
         plt.figure(figsize=(10, 6))
-        bars = plt.bar(classes, counts, 
-                      color=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'])
+        colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFA726']
+        bars = plt.bar(classes, counts, color=colors[:len(classes)])
         
         plt.ylabel('Detection Count')
         plt.title('Object Distribution')
@@ -65,5 +67,6 @@ class FactoryVisualizer:
                     f'{height}',
                     ha='center', va='bottom')
         
+        plt.tight_layout()
         plt.savefig(save_path, bbox_inches='tight')
         plt.close()

@@ -4,4 +4,6 @@ opencv-python-headless
 trimesh
 numpy
 torch
+matplotlib
+Pillow
 huggingface_hub
